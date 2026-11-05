@@ -1,0 +1,246 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="referrer" content="no-referrer" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>SprAnalytics · CSV para Excel e gráfico</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%236d3fd1'/%3E%3Cpath d='M5 21c4 0 3-10 7-10s3 12 7 12 3-8 8-8' fill='none' stroke='white' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="/static/style.css" />
+  </head>
+  <body>
+    <header class="top">
+      <a class="logo" href="/" aria-label="SprAnalytics">
+        <svg width="30" height="30" viewBox="0 0 32 32" aria-hidden="true">
+          <rect width="32" height="32" rx="8" fill="#6d3fd1" />
+          <path
+            d="M5 21c4 0 3-10 7-10s3 12 7 12 3-8 8-8"
+            fill="none"
+            stroke="#fff"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+        </svg>
+        <span>SprAnalytics</span>
+      </a>
+      <span class="top-tag">CSV → Excel e gráfico</span>
+    </header>
+
+    
+    <main id="stage-home" class="home">
+      <h1>Do CSV ao gráfico em segundos</h1>
+      <p class="lead">
+        Envie o arquivo do Sensorgrama e receba o Excel com as contas feitas e o gráfico pronto, ou
+        só a imagem do gráfico.
+      </p>
+
+      <div id="drop" class="drop" tabindex="-1">
+        <button id="pick" class="btn-big" type="button">
+          <svg
+            width="22"
+            height="22"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2.4"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            aria-hidden="true"
+          >
+            <path d="M12 16V4M6 10l6-6 6 6M4 20h16" />
+          </svg>
+          Selecionar arquivo CSV
+        </button>
+        <div class="or">ou solte o arquivo aqui</div>
+        <input id="file" type="file" accept=".csv,text/csv" hidden />
+      </div>
+      <p id="home-err" class="err" role="alert"></p>
+
+      <ul class="features">
+        <li>
+          <b>Contas automáticas</b
+          ><span>Tempo e delta com as mesmas fórmulas do professor, direto no Excel.</span>
+        </li>
+        <li>
+          <b>Níveis detectados</b
+          ><span>O site acha os patamares e calcula a média e o Δ entre eles.</span>
+        </li>
+        <li>
+          <b>Excel, PNG, JPG ou PDF</b><span>Baixe a planilha completa ou só o gráfico.</span>
+        </li>
+      </ul>
+    </main>
+
+   
+    <div id="stage-work" class="work" hidden>
+      <section class="canvas">
+        <div class="filebar">
+          <span class="chip" id="filechip"></span>
+          <button id="change" class="link" type="button">Trocar arquivo</button>
+        </div>
+
+        <div class="tabs" id="tabs" role="tablist" aria-label="Canal exibido na prévia"></div>
+
+        <div class="preview" id="previewbox">
+          <img id="pv" alt="Prévia do gráfico" />
+          <div class="spin" id="spin" hidden><i></i></div>
+          <p class="pv-msg" id="pvmsg" hidden></p>
+        </div>
+        <p class="hint">
+          Prévia do gráfico. Nos gráficos separados, as <b>faixas coloridas</b> são as janelas dos
+          níveis e as <b>linhas tracejadas</b>, a média de cada uma. Na comparação, as linhas
+          pontilhadas têm a cor de cada curva. Mude os tempos nas opções e a prévia atualiza.
+        </p>
+      </section>
+
+      <aside class="side">
+        <h2>Opções</h2>
+        <div class="side-scroll">
+          <div class="sec">
+            <span class="lbl">Como mostrar os canais?</span>
+            <div class="modes" id="modes" role="radiogroup" aria-label="Modo do gráfico">
+              <button type="button" class="mode on" data-m="sep" role="radio" aria-checked="true">
+                Gráficos separados
+              </button>
+              <button type="button" class="mode" data-m="cmp" role="radio" aria-checked="false">
+                Comparar no mesmo gráfico
+              </button>
+            </div>
+          </div>
+
+          <div class="sec">
+            <span class="lbl">O que você quer baixar?</span>
+            <div class="fmts" id="fmts" role="radiogroup" aria-label="Formato do arquivo">
+              <button type="button" class="fmt on" data-f="xlsx" role="radio" aria-checked="true">
+                <i class="b x">XLS</i><span>Excel</span>
+              </button>
+              <button type="button" class="fmt" data-f="png" role="radio" aria-checked="false">
+                <i class="b p">PNG</i><span>Gráfico</span>
+              </button>
+              <button type="button" class="fmt" data-f="jpg" role="radio" aria-checked="false">
+                <i class="b j">JPG</i><span>Gráfico</span>
+              </button>
+              <button type="button" class="fmt" data-f="pdf" role="radio" aria-checked="false">
+                <i class="b d">PDF</i><span>Gráfico</span>
+              </button>
+            </div>
+            <p class="note fmtnote" id="fmtnote"></p>
+          </div>
+
+          <div class="sec">
+            <label class="lbl" for="metric">Medida</label>
+            <select id="metric"></select>
+          </div>
+
+          <div class="sec" id="sec-cmp" hidden>
+            <span class="lbl">Canais a comparar (2 a 4)</span>
+            <p class="note">
+              Marque os canais e escreva o nome de cada curva na legenda (ex.: “L2 670nm - 1,5
+              µg/mL”). Cada nível vira uma linha pontilhada com o valor escrito.
+            </p>
+            <div id="cmplist"></div>
+          </div>
+
+          <div class="sec" id="sec-chs">
+            <div class="lbl-row">
+              <span class="lbl">Canais a gerar</span
+              ><button class="link sm" id="allch" type="button">Marcar todos</button>
+            </div>
+            <div class="chs" id="chs"></div>
+          </div>
+
+          <div class="sec">
+            <div class="lbl-row">
+              <span class="lbl">Níveis</span
+              ><button class="link sm" id="detect" type="button">↻ Detectar automaticamente</button>
+            </div>
+            <p class="note">
+              Um nível é o patamar estável depois de uma queda. Cada um vira uma linha tracejada com
+              o valor médio.
+            </p>
+            <div id="levels"></div>
+            <button class="add" id="addlevel" type="button">+ Adicionar nível</button>
+
+            <div class="delta" id="deltabox" hidden>
+              <label class="chk"
+                ><input type="checkbox" id="deltaon" checked />
+                <span>Calcular Δ entre dois níveis <em>(no Excel)</em></span></label
+              >
+              <div class="delta-sel" id="deltasel">
+                <select id="db" aria-label="Nível final"></select>
+                <span>−</span>
+                <select id="da" aria-label="Nível inicial"></select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="foot">
+          <p class="err" id="work-err" role="alert"></p>
+          <button id="go" class="btn-go" type="button">
+            <span id="gotxt">Gerar Excel</span>
+            <svg
+              width="22"
+              height="22"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.6"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="10" stroke-width="0" fill="rgba(255,255,255,.22)" />
+              <path d="M9 7l5 5-5 5" />
+            </svg>
+          </button>
+        </div>
+      </aside>
+    </div>
+
+  
+    <main id="stage-done" class="done" hidden>
+      <div class="okmark" aria-hidden="true">
+        <svg
+          width="44"
+          height="44"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="#fff"
+          stroke-width="3"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+        >
+          <path d="M5 12.5l4.5 4.5L19 7.5" />
+        </svg>
+      </div>
+      <h1>Pronto! Seu arquivo foi gerado</h1>
+      <p class="lead" id="donefile"></p>
+      <a id="dl" class="btn-big" href="#" download>
+        <svg
+          width="22"
+          height="22"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2.4"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          aria-hidden="true"
+        >
+          <path d="M12 4v12M6 10l6 6 6-6M4 20h16" />
+        </svg>
+        Baixar arquivo
+      </a>
+      <div class="done-actions">
+        <button id="back" class="btn-ghost" type="button">← Mudar opções / outro formato</button>
+        <button id="again" class="btn-ghost" type="button">Enviar outro CSV</button>
+      </div>
+    </main>
+
+    <script src="/static/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,14 @@
+SprAnalytics  -  CSV do Sensorgrama para Excel e gráfico
+
+COMO ABRIR (Windows):
+  Dê dois cliques em  iniciar.bat
+  Na primeira vez ele instala o que falta e abre o site no navegador.
+  Para fechar, feche a janela preta.
+
+SE PREFERIR PELO TERMINAL (dentro desta pasta):
+  pip install -r requirements.txt
+  python app.py
+  e abra http://localhost:5000
+
+USO: selecione o CSV -> confira a prévia e os níveis -> escolha o formato -> Gerar.
+
